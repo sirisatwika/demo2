@@ -1,0 +1,64 @@
+# Copyright 2019 IOTech Inc. All rights reserved.
+name: "water pipeline"
+manufacturer: "Dent Instruments"
+model: "PS3037"
+description: "water pipeline data"
+labels: 
+  - "modbus"
+  - "waterpipe"
+deviceResources:
+    -
+        name: "flowrate"
+        description: "rate of water flow in cubic meter per sec"
+        attributes:
+            { primaryTable: "HOLDING_REGISTERS", startingAddress: "990" }
+        properties:
+            value:
+                { type: "FLOAT32", readWrite: "R", size: "2", scale: "1", minimum: "0.0", maximum: "1000.0", defaultValue: "0.0"}
+            units:
+                { type: "String", readWrite: "R", defaultValue: "m3/s"}
+    -
+        name: "pH"
+        description: "check the pH level of water"
+        attributes:
+            { primaryTable: "HOLDING_REGISTERS", startingAddress: "1000" }
+        properties:
+            value:
+                { type: "FLOAT32", readWrite: "R", size: "2", scale: "1", minimum: "0.0", maximum: "14.0", defaultValue: "0.0"}
+            units:
+                { type: "String", readWrite: "R", defaultValue: ""}
+deviceCommands:
+    -
+        name: "Configuration"
+        set:
+            - { index: "1", operation: "set", object: "flowrate", parameter: "flowrate" }
+            - { index: "2", operation: "set", object: "pH", parameter: "pH" }
+        get:
+            - { index: "1", operation: "get", object: "flowrate", parameter: "flowrate" }
+            - { index: "2", operation: "get", object: "pH", parameter: "pH" }
+coreCommands:
+    -
+        name: "Configuration"
+        get: 
+            path: "/api/v1/device/{deviceId}/Configuration"
+            responses: 
+                - 
+                    code: "200"
+                    description: "Get the Configuration"
+                    expectedValues: ["flowrate","pH"]
+                -
+                    code: "503"
+                    description: "service unavailable"
+                    expectedValues: []
+        put:
+            path: "/api/v1/device/{deviceId}/Configuration"
+            parameterNames: ["flowrate","pH"]
+            responses:
+                -
+                    code: "204"
+                    description: "Set the Configuration"
+                    expectedValues: []
+                -
+                    code: "503"
+                    description: "service unavailable"
+                    expectedValues: []
